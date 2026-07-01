@@ -2,26 +2,48 @@
 
 namespace App\Livewire;
 
+use App\Models\Student;
 use Livewire\Component;
 
 class Students extends Component
 {
-    public string $message = "Hello Livewire!";
-    public string $name = "";
-    public int $count = 0;
+    public string $name = '';
+    public string $course = '';
+    public int $age = 18;
 
-    public function increment()
+    protected $rules = [
+        'name' => 'required|min:3',
+        'course' => 'required',
+        'age' => 'required|integer|min:18|max:100',
+    ];
+
+    public function save()
     {
-        $this->count++;
+        $this->validate();
+
+        Student::create([
+            'name' => $this->name,
+            'course' => $this->course,
+            'age' => $this->age,
+        ]);
+
+        $this->reset(['name', 'course']);
+        $this->age = 18;
+
+        session()->flash('success', 'Student added successfully!');
     }
 
-    public function decrement()
+    public function delete($id)
     {
-        $this->count--;
+        Student::findOrFail($id)->delete();
+
+        session()->flash('success', 'Student deleted successfully!');
     }
 
     public function render()
     {
-        return view('livewire.students');
+        return view('livewire.students', [
+            'students' => Student::latest()->get(),
+        ]);
     }
 }
