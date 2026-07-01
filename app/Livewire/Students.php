@@ -7,6 +7,8 @@ use Livewire\Component;
 
 class Students extends Component
 {
+    public ?Student $editingStudent = null;
+
     public string $name = '';
     public string $course = '';
     public int $age = 18;
@@ -27,10 +29,33 @@ class Students extends Component
             'age' => $this->age,
         ]);
 
-        $this->reset(['name', 'course']);
-        $this->age = 18;
+        $this->resetForm();
 
         session()->flash('success', 'Student added successfully!');
+    }
+
+    public function edit($id)
+    {
+        $this->editingStudent = Student::findOrFail($id);
+
+        $this->name = $this->editingStudent->name;
+        $this->course = $this->editingStudent->course;
+        $this->age = $this->editingStudent->age;
+    }
+
+    public function update()
+    {
+        $this->validate();
+
+        $this->editingStudent->update([
+            'name' => $this->name,
+            'course' => $this->course,
+            'age' => $this->age,
+        ]);
+
+        session()->flash('success', 'Student updated successfully!');
+
+        $this->cancel();
     }
 
     public function delete($id)
@@ -38,6 +63,23 @@ class Students extends Component
         Student::findOrFail($id)->delete();
 
         session()->flash('success', 'Student deleted successfully!');
+    }
+
+    public function cancel()
+    {
+        $this->editingStudent = null;
+
+        $this->resetForm();
+    }
+
+    private function resetForm()
+    {
+        $this->reset([
+            'name',
+            'course',
+        ]);
+
+        $this->age = 18;
     }
 
     public function render()

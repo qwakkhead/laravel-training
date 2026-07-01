@@ -7,7 +7,7 @@
         </p>
     @endif
 
-    <form wire:submit="save">
+    <form wire:submit="{{ $editingStudent ? 'update' : 'save' }}">
 
         <p>Name</p>
         <input type="text" wire:model="name">
@@ -37,8 +37,14 @@
         <br><br>
 
         <button type="submit">
-            Save Student
+            {{ $editingStudent ? 'Update Student' : 'Save Student' }}
         </button>
+
+        @if ($editingStudent)
+            <button type="button" wire:click="cancel">
+                Cancel
+            </button>
+        @endif
 
     </form>
 
@@ -53,7 +59,7 @@
                 <th>Name</th>
                 <th>Course</th>
                 <th>Age</th>
-                 <th>Action</th>
+                <th>Action</th>
             </tr>
         </thead>
 
@@ -65,7 +71,13 @@
                     <td>{{ $student->course }}</td>
                     <td>{{ $student->age }}</td>
                     <td>
-                        <button wire:click="delete({{ $student->id }})">
+                        <button wire:click="edit({{ $student->id }})">
+                            Edit
+                        </button>
+
+                        <button
+                            wire:click="delete({{ $student->id }})"
+                            wire:confirm="Are you sure you want to delete this student?">
                             Delete
                         </button>
                     </td>
