@@ -85,11 +85,11 @@
                             Edit
                         </button>
 
-                        <button
-                            wire:click="delete({{ $student->id }})"
-                            wire:confirm="Are you sure you want to delete this student?">
+                        @can('student.delete')
+                        <button wire:click="delete({{ $student->id }})">
                             Delete
                         </button>
+                        @endcan
                     </td>
                 </tr>
             @empty
@@ -103,5 +103,5 @@
     <br>
 
     {{ $students->links() }}
-    
+
 </div>
