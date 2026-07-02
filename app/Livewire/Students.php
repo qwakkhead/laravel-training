@@ -2,34 +2,47 @@
 
 namespace App\Livewire;
 
-use Livewire\WithPagination;
 use App\Models\Student;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Students extends Component
 {
     use WithPagination;
 
     public ?Student $editingStudent = null;
+
     public string $search = '';
     public string $name = '';
     public string $course = '';
     public int $age = 18;
 
     protected $rules = [
-        'name' => 'required|min:3',
+        'name'   => 'required|min:3',
         'course' => 'required',
-        'age' => 'required|integer|min:18|max:100',
+        'age'    => 'required|integer|min:18|max:100',
     ];
 
-    public function save()
+    public function mount(): void
     {
+        abort_unless(auth()->user()->can('student.read'), 403);
+    }
+
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function save(): void
+    {
+        abort_unless(auth()->user()->can('student.create'), 403);
+
         $this->validate();
 
         Student::create([
-            'name' => $this->name,
+            'name'   => $this->name,
             'course' => $this->course,
-            'age' => $this->age,
+            'age'    => $this->age,
         ]);
 
         $this->resetForm();
@@ -37,8 +50,10 @@ class Students extends Component
         session()->flash('success', 'Student added successfully!');
     }
 
-    public function edit($id)
+    public function edit(int $id): void
     {
+        abort_unless(auth()->user()->can('student.update'), 403);
+
         $this->editingStudent = Student::findOrFail($id);
 
         $this->name = $this->editingStudent->name;
@@ -46,14 +61,16 @@ class Students extends Component
         $this->age = $this->editingStudent->age;
     }
 
-    public function update()
+    public function update(): void
     {
+        abort_unless(auth()->user()->can('student.update'), 403);
+
         $this->validate();
 
         $this->editingStudent->update([
-            'name' => $this->name,
+            'name'   => $this->name,
             'course' => $this->course,
-            'age' => $this->age,
+            'age'    => $this->age,
         ]);
 
         session()->flash('success', 'Student updated successfully!');
@@ -61,21 +78,23 @@ class Students extends Component
         $this->cancel();
     }
 
-    public function delete($id)
+    public function delete(int $id): void
     {
+        abort_unless(auth()->user()->can('student.delete'), 403);
+
         Student::findOrFail($id)->delete();
 
         session()->flash('success', 'Student deleted successfully!');
     }
 
-    public function cancel()
+    public function cancel(): void
     {
         $this->editingStudent = null;
 
         $this->resetForm();
     }
 
-    private function resetForm()
+    private function resetForm(): void
     {
         $this->reset([
             'name',
@@ -89,9 +108,9 @@ class Students extends Component
     {
         $students = Student::query()
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('course', 'like', '%' . $this->search . '%')
-                    ->orWhere('age', 'like', '%' . $this->search . '%');
+                $query->where('name', 'like', "%{$this->search}%")
+                      ->orWhere('course', 'like', "%{$this->search}%")
+                      ->orWhere('age', 'like', "%{$this->search}%");
             })
             ->latest()
             ->paginate(10);

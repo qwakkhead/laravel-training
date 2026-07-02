@@ -7,46 +7,48 @@
         </p>
     @endif
 
-    <form wire:submit="{{ $editingStudent ? 'update' : 'save' }}">
+    @can('student.create')
+        <form wire:submit="{{ $editingStudent ? 'update' : 'save' }}">
 
-        <p>Name</p>
-        <input type="text" wire:model="name">
+            <p>Name</p>
+            <input type="text" wire:model="name">
 
-        @error('name')
-            <p style="color: red;">{{ $message }}</p>
-        @enderror
+            @error('name')
+                <p style="color: red;">{{ $message }}</p>
+            @enderror
 
-        <br>
+            <br>
 
-        <p>Course</p>
-        <input type="text" wire:model="course">
+            <p>Course</p>
+            <input type="text" wire:model="course">
 
-        @error('course')
-            <p style="color: red;">{{ $message }}</p>
-        @enderror
+            @error('course')
+                <p style="color: red;">{{ $message }}</p>
+            @enderror
 
-        <br>
+            <br>
 
-        <p>Age</p>
-        <input type="number" wire:model="age">
+            <p>Age</p>
+            <input type="number" wire:model="age">
 
-        @error('age')
-            <p style="color: red;">{{ $message }}</p>
-        @enderror
+            @error('age')
+                <p style="color: red;">{{ $message }}</p>
+            @enderror
 
-        <br><br>
+            <br><br>
 
-        <button type="submit">
-            {{ $editingStudent ? 'Update Student' : 'Save Student' }}
-        </button>
-
-        @if ($editingStudent)
-            <button type="button" wire:click="cancel">
-                Cancel
+            <button type="submit">
+                {{ $editingStudent ? 'Update Student' : 'Save Student' }}
             </button>
-        @endif
 
-    </form>
+            @if ($editingStudent)
+                <button type="button" wire:click="cancel">
+                    Cancel
+                </button>
+            @endif
+
+        </form>
+    @endcan
 
     <br><br>
 
@@ -56,7 +58,6 @@
         type="text"
         wire:model.live="search"
         placeholder="Search by name...">
-
 
     <hr>
 
@@ -81,15 +82,19 @@
                     <td>{{ $student->course }}</td>
                     <td>{{ $student->age }}</td>
                     <td>
-                        <button wire:click="edit({{ $student->id }})">
-                            Edit
-                        </button>
+
+                        @can('student.update')
+                            <button wire:click="edit({{ $student->id }})">
+                                Edit
+                            </button>
+                        @endcan
 
                         @can('student.delete')
-                        <button wire:click="delete({{ $student->id }})">
-                            Delete
-                        </button>
+                            <button wire:click="delete({{ $student->id }})">
+                                Delete
+                            </button>
                         @endcan
+
                     </td>
                 </tr>
             @empty
@@ -99,7 +104,7 @@
             @endforelse
         </tbody>
     </table>
-    
+
     <br>
 
     {{ $students->links() }}
