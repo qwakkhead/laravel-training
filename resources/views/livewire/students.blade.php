@@ -48,6 +48,16 @@
 
     </form>
 
+    <br><br>
+
+    <p>Search Student</p>
+
+    <input
+        type="text"
+        wire:model.live="search"
+        placeholder="Search by name...">
+
+
     <hr>
 
     <h2>Students</h2>
@@ -89,4 +99,9 @@
             @endforelse
         </tbody>
     </table>
+    
+    <br>
+
+    {{ $students->links() }}
+    
 </div>

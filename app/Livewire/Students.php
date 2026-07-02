@@ -2,13 +2,16 @@
 
 namespace App\Livewire;
 
+use Livewire\WithPagination;
 use App\Models\Student;
 use Livewire\Component;
 
 class Students extends Component
 {
-    public ?Student $editingStudent = null;
+    use WithPagination;
 
+    public ?Student $editingStudent = null;
+    public string $search = '';
     public string $name = '';
     public string $course = '';
     public int $age = 18;
@@ -84,8 +87,17 @@ class Students extends Component
 
     public function render()
     {
+        $students = Student::query()
+            ->when($this->search, function ($query) {
+                $query->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('course', 'like', '%' . $this->search . '%')
+                    ->orWhere('age', 'like', '%' . $this->search . '%');
+            })
+            ->latest()
+            ->paginate(10);
+
         return view('livewire.students', [
-            'students' => Student::latest()->get(),
+            'students' => $students,
         ]);
     }
 }
